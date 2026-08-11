@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 import { useMovies } from "../../src/contexts/MoviesContext";
 import MovieCard from "../../src/components/MovieCard";
+import { colors, spacing } from "../../src/theme/colors";
 
 export default function AssistidosScreen() {
   const { watchedMovies, isLoading } = useMovies();
@@ -34,6 +34,7 @@ export default function AssistidosScreen() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <MovieCard movie={item} />}
         contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
@@ -42,20 +43,20 @@ export default function AssistidosScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#f6f7fb",
+    padding: spacing.md,
+    backgroundColor: colors.background,
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#12223b",
-    marginBottom: 8,
+    fontSize: 26,
+    fontWeight: "700",
+    color: colors.textPrimary,
+    marginBottom: 4,
     textAlign: "center",
   },
   count: {
-    fontSize: 16,
-    color: "#666",
-    marginBottom: 16,
+    fontSize: 15,
+    color: colors.textSecondary,
+    marginBottom: spacing.md,
     textAlign: "center",
   },
   list: {
@@ -63,22 +64,21 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
-    color: "#666",
+    color: colors.textSecondary,
     textAlign: "center",
     marginTop: 50,
   },
   emptyText: {
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: "600",
-    color: "#12223b",
+    color: colors.textPrimary,
     textAlign: "center",
     marginTop: 50,
   },
   emptySubtext: {
-    fontSize: 16,
-    color: "#666",
+    fontSize: 15,
+    color: colors.textSecondary,
     textAlign: "center",
     marginTop: 10,
   },
 });
-

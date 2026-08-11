@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity,Image } from "react-native";
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useAuth } from "../../src/contexts/AuthContext";
 import { router } from "expo-router";
+import { colors, radius, spacing } from "../../src/theme/colors";
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -34,114 +35,133 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={styles.background}>
-      <View style={styles.views}> 
-        <Image source={require("../../assets/cinevault.png")}  style={styles.image}/>
-        <Text style={styles.title}> LOGIN</Text>
+    <KeyboardAvoidingView
+      style={styles.background}
+      behavior="padding"
+      keyboardVerticalOffset={0}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.card}>
+          <Image source={require("../../assets/cinevault.png")} style={styles.image} />
+          <Text style={styles.title}>Bem-vindo de volta</Text>
+          <Text style={styles.subtitle}>Entre para continuar sua jornada no cinema</Text>
 
-          <Text style={styles.titles2}>Digite seu e-mail e senha para acessar</Text>
-      
-        
-
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          placeholderTextColor="#aaa"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Senha"
-          secureTextEntry
-          value={senha}
-          onChangeText={setSenha}
-          placeholderTextColor="#aaa"
-        />
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Entrar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.secondaryButton]} onPress={() => router.push("(auth)/register")}>
-          <Text style={[styles.buttonText, styles.secondaryButtonText]}>Criar conta</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            placeholderTextColor={colors.textMuted}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Senha"
+            secureTextEntry
+            value={senha}
+            onChangeText={setSenha}
+            placeholderTextColor={colors.textMuted}
+          />
+          <TouchableOpacity style={styles.button} onPress={handleLogin} activeOpacity={0.85}>
+            <Text style={styles.buttonText}>Entrar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() => router.push("(auth)/register")}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.secondaryButtonText}>Criar conta</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: "#f6f7fb",
-    justifyContent: "center",
+    backgroundColor: colors.background,
   },
-  views: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 28,
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.md,
+  },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    width: "100%",
+    maxWidth: 420,
     alignSelf: "center",
-    width: 400,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
-    shadowRadius: 7,
-    elevation: 4,
     alignItems: "center",
-
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 8,
   },
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 20,
+  image: {
+    width: 180,
+    height: 100,
+    resizeMode: "contain",
+    marginBottom: spacing.md,
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     textAlign: "center",
-    fontWeight: "bold",
-    marginBottom: 16,
-    color: "#12223b"
+    fontWeight: "700",
+    marginBottom: spacing.xs,
+    color: colors.textPrimary,
   },
-  titles2: {
-    fontSize: 22,
+  subtitle: {
+    fontSize: 14,
     textAlign: "center",
-    marginBottom: 36,
-    fontWeight: "normal",
-    color: "#12223b"
+    marginBottom: spacing.lg,
+    fontWeight: "400",
+    color: colors.textSecondary,
   },
   input: {
-    borderWidth: 1.2,
-    borderColor: "#d1d1d7",
-    backgroundColor: "#fafbfc",
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
+    color: colors.textPrimary,
     padding: 14,
-    marginBottom: 18,
-    borderRadius: 14,
+    marginBottom: spacing.md,
+    borderRadius: radius.md,
     fontSize: 16,
     width: "100%",
   },
   button: {
-    backgroundColor: "#D8AE82",
-    paddingVertical: 12,
-    borderRadius: 16,
-    marginTop: 12,
+    backgroundColor: colors.primary,
+    paddingVertical: 14,
+    borderRadius: radius.md,
+    marginTop: spacing.sm,
     width: "100%",
-    alignItems: "center"
+    alignItems: "center",
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold"
+    color: colors.textOnPrimary,
+    fontSize: 17,
+    fontWeight: "700",
   },
   secondaryButton: {
-    backgroundColor: "#f2f4fc",
-    marginTop: 10,
+    marginTop: spacing.md,
+    paddingVertical: 8,
+    width: "100%",
+    alignItems: "center",
   },
   secondaryButtonText: {
-    color: "#143a77",
-    fontWeight: "600"
+    color: colors.primary,
+    fontWeight: "600",
+    fontSize: 15,
   },
-  image:{
-    width: 250,
-    height: 130,
-    marginBottom: 20,
-  }
 });

@@ -13,10 +13,12 @@ import {
   TextInput,
   Keyboard,
 } from "react-native";
-import imdbApi from "../../src/api/imdbApi"; 
+import imdbApi from "../../src/api/imdbApi";
 import { Movie } from "../../src/types/movie";
 import { router } from "expo-router";
 import { useMovies } from "../../src/contexts/MoviesContext";
+import { colors, radius, spacing } from "../../src/theme/colors";
+import RatingPromptModal from "../../src/components/RatingPromptModal";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 interface MovieSearchModalProps {
@@ -26,7 +28,7 @@ interface MovieSearchModalProps {
   addWantToWatchMovie: (movie: Movie) => Promise<void>;
   isMovieWatched: (id: string) => boolean;
   isMovieWantToWatch: (id: string) => boolean;
-  router: any; 
+  router: any;
 }
 
 const MovieSearchModal = ({
@@ -58,12 +60,12 @@ const MovieSearchModal = ({
       setSearchResults([]);
       return;
     }
-    
+
     setSearchLoading(true);
     const handler = setTimeout(async () => {
       try {
-        const results = await imdbApi.searchMovies(searchQuery); 
-        setSearchResults(results.slice(0, 10)); 
+        const results = await imdbApi.searchMovies(searchQuery);
+        setSearchResults(results.slice(0, 10));
       } catch (error) {
         Alert.alert('Erro', 'Falha ao buscar filmes.');
       } finally {
@@ -87,15 +89,15 @@ const MovieSearchModal = ({
         Alert.alert('Aviso', 'Este filme já está na sua lista de Assistidos!');
         return router.push("/(drawer)/assistidos");
       }
-      await addWatchedMovie(selectedMovie, rating); 
+      await addWatchedMovie(selectedMovie, rating);
       Alert.alert('Sucesso', `${selectedMovie.title} adicionado a Assistidos com nota ${rating}!`);
 
-    } else { 
+    } else {
       if (isMovieWantToWatch(selectedMovie.id)) {
         Alert.alert('Aviso', 'Este filme já está na sua lista Quero Assistir!');
         return router.push("/(drawer)/quero-assistir");
       }
-      await addWantToWatchMovie(selectedMovie); 
+      await addWantToWatchMovie(selectedMovie);
       Alert.alert('Sucesso', `${selectedMovie.title} adicionado à lista Quero Assistir!`);
     }
 
@@ -113,17 +115,18 @@ const MovieSearchModal = ({
     <Modal visible={isVisible} animationType="slide" onRequestClose={onClose}>
       <View style={modalStyles.modalContainer}>
         <Text style={modalStyles.modalHeader}>Adicionar Filme</Text>
-        
+
         <TextInput
           style={modalStyles.searchInput}
           placeholder="Busque o nome do filme..."
+          placeholderTextColor={colors.textMuted}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
 
-        {searchLoading && <ActivityIndicator size="small" color="#12223b" />}
+        {searchLoading && <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 12 }} />}
 
-        <ScrollView style={{ flex: 1, marginTop: 15 }}>
+        <ScrollView style={{ flex: 1, marginTop: 15 }} showsVerticalScrollIndicator={false}>
           {!selectedMovie ? (
             searchResults.length > 0 ? (
               searchResults.map(movie => (
@@ -131,6 +134,7 @@ const MovieSearchModal = ({
                   key={movie.id}
                   style={modalStyles.resultItem}
                   onPress={() => handleSelectMovie(movie)}
+                  activeOpacity={0.7}
                 >
                   <Image
                     source={{ uri: movie.image || 'https://via.placeholder.com/50' }}
@@ -147,12 +151,13 @@ const MovieSearchModal = ({
             <View style={modalStyles.selectionContainer}>
               <Text style={modalStyles.selectionTitle}>Filme Selecionado:</Text>
               <Text style={modalStyles.selectedMovieTitle}>{selectedMovie.title}</Text>
-              
+
               <Text style={modalStyles.listLabel}>Onde adicionar?</Text>
 
               <TouchableOpacity
                 style={[styles.actionButton, modalStyles.watchedButton]}
                 onPress={() => handleAddToList('watched')}
+                activeOpacity={0.85}
               >
                 <Text style={styles.actionText}>Adicionar aos Assistidos</Text>
               </TouchableOpacity>
@@ -166,17 +171,19 @@ const MovieSearchModal = ({
                   value={userRating}
                   onChangeText={(text) => setUserRating(text.replace(/[^0-9.,]/g, '').substring(0, 4))}
                   placeholder="Ex: 8.5"
+                  placeholderTextColor={colors.textMuted}
                 />
               </View>
 
               <TouchableOpacity
                 style={[styles.actionButton, modalStyles.toWatchButton]}
                 onPress={() => handleAddToList('toWatch')}
+                activeOpacity={0.85}
               >
                 <Text style={styles.actionText}>Adicionar à lista Quero Assistir</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={modalStyles.changeSelectionButton}
                 onPress={() => setSelectedMovie(null)}
               >
@@ -185,8 +192,8 @@ const MovieSearchModal = ({
             </View>
           )}
         </ScrollView>
-        
-        <TouchableOpacity style={modalStyles.closeButton} onPress={onClose}>
+
+        <TouchableOpacity style={modalStyles.closeButton} onPress={onClose} activeOpacity={0.8}>
           <Text style={modalStyles.closeButtonText}>Fechar</Text>
         </TouchableOpacity>
       </View>
@@ -199,8 +206,10 @@ export default function HomeScreen() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const { addWatchedMovie, addWantToWatchMovie, isMovieWatched, isMovieWantToWatch } = useMovies();
-  const [isAddModalVisible, setIsAddModalVisible] = useState(false); 
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [loadedOnce, setLoadedOnce] = useState(false);
+  const [movieToRate, setMovieToRate] = useState<Movie | null>(null);
+  const [isRatingModalVisible, setIsRatingModalVisible] = useState(false);
 
   function pickRandomMovies(list: Movie[]) {
     if (!list || list.length === 0) return [];
@@ -211,7 +220,7 @@ export default function HomeScreen() {
   async function loadPopularMovies() {
     try {
       setLoading(true);
-      const data = await imdbApi.getPopularMovies(); 
+      const data = await imdbApi.getPopularMovies();
       const randomFive = pickRandomMovies(data || []);
       setMovies(randomFive);
     } catch (err) {
@@ -231,11 +240,21 @@ export default function HomeScreen() {
     if (isMovieWatched(movie.id)) {
       return router.push("/(drawer)/assistidos");
     }
-    await addWatchedMovie(movie, 0); 
+    setMovieToRate(movie);
+    setIsRatingModalVisible(true);
+  }
+
+  async function handleConfirmRating(rating: number) {
+    if (!movieToRate) return;
+    const movie = movieToRate;
+
+    await addWatchedMovie(movie, rating);
+    setIsRatingModalVisible(false);
+    setMovieToRate(null);
 
     Alert.alert(
       "Sucesso",
-      `${movie.title} foi adicionado aos Assistidos!`,
+      `${movie.title} foi adicionado aos Assistidos com nota ${rating}!`,
       [
         { text: "Ver Assistidos", onPress: () => router.push("/(drawer)/assistidos") },
         { text: "OK" }
@@ -266,12 +285,13 @@ export default function HomeScreen() {
         source={require("../../assets/cinevault.png")}
         style={styles.logo}
       />
-      
-      <View style={styles.headerRow}> 
+
+      <View style={styles.headerRow}>
         <View style={styles.tabContainer}>
           <TouchableOpacity
             style={styles.tabButton}
             onPress={() => router.push("/(drawer)/assistidos")}
+            activeOpacity={0.8}
           >
             <Text style={styles.tabText}>Assistidos</Text>
           </TouchableOpacity>
@@ -279,25 +299,27 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={styles.tabButton}
             onPress={() => router.push("/(drawer)/quero-assistir")}
+            activeOpacity={0.8}
           >
             <Text style={styles.tabText}>Quero Assistir</Text>
           </TouchableOpacity>
         </View>
-        
+
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setIsAddModalVisible(true)}
+          activeOpacity={0.85}
         >
-          <Text style={styles.addButtonText}>+ Adicionar Filme</Text>
+          <Text style={styles.addButtonText}>+ Adicionar</Text>
         </TouchableOpacity>
       </View>
 
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} style={{ width: "100%" }}>
         {loading ? (
-          <ActivityIndicator size="large" color="#12223b" style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
         ) : (
-          <View style={{ marginTop: 10 }}>
+          <View style={{ paddingBottom: 30 }}>
             {movies.map((movie) => (
               <View key={movie.id} style={styles.movieCard}>
                 <Image
@@ -312,6 +334,7 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     style={styles.buttonDetails}
                     onPress={() => router.push(`/movie/${movie.id}`)}
+                    activeOpacity={0.85}
                   >
                     <Text style={styles.buttonDetailsText}>Ver Detalhes</Text>
                   </TouchableOpacity>
@@ -322,6 +345,7 @@ export default function HomeScreen() {
                       isMovieWatched(movie.id) && styles.actionActive
                     ]}
                     onPress={() => handleMarkAsWatched(movie)}
+                    activeOpacity={0.85}
                   >
                     <Text style={styles.actionText}>
                       {isMovieWatched(movie.id) ? "✓ Já Assistido" : "Já Assistido"}
@@ -334,6 +358,7 @@ export default function HomeScreen() {
                       isMovieWantToWatch(movie.id) && styles.actionActiveBlue
                     ]}
                     onPress={() => handleWantToWatch(movie)}
+                    activeOpacity={0.85}
                   >
                     <Text style={styles.actionText}>
                       {isMovieWantToWatch(movie.id) ? "✓ Quero Assistir" : "Quero Assistir"}
@@ -346,7 +371,7 @@ export default function HomeScreen() {
         )}
       </ScrollView>
 
-      <MovieSearchModal 
+      <MovieSearchModal
         isVisible={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}
         addWatchedMovie={addWatchedMovie}
@@ -355,6 +380,17 @@ export default function HomeScreen() {
         isMovieWantToWatch={isMovieWantToWatch}
         router={router}
       />
+
+      <RatingPromptModal
+        isVisible={isRatingModalVisible}
+        movieTitle={movieToRate?.title ?? ""}
+        onCancel={() => {
+          setIsRatingModalVisible(false);
+          setMovieToRate(null);
+        }}
+        onConfirm={handleConfirmRating}
+        confirmLabel="Adicionar aos Assistidos"
+      />
     </View>
   );
 }
@@ -362,84 +398,88 @@ export default function HomeScreen() {
 const modalStyles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    padding: 20,
+    padding: spacing.md,
     paddingTop: 50,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   modalHeader: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#12223b',
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: spacing.md,
+    color: colors.textPrimary,
   },
   searchInput: {
     height: 50,
-    borderColor: '#ccc',
+    borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: radius.md,
     paddingHorizontal: 15,
     fontSize: 16,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surfaceAlt,
+    color: colors.textPrimary,
   },
   resultItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    backgroundColor: '#fff',
-    marginBottom: 5,
-    borderRadius: 5,
+    backgroundColor: colors.surface,
+    marginBottom: 6,
+    borderRadius: radius.sm,
     paddingHorizontal: 10,
-    elevation: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   resultImage: {
     width: 40,
     height: 60,
     marginRight: 10,
-    borderRadius: 3,
+    borderRadius: 4,
   },
   resultText: {
     fontSize: 15,
     flex: 1,
+    color: colors.textPrimary,
   },
   resultRating: {
     fontSize: 14,
-    color: '#12223b',
-    fontWeight: 'bold',
+    color: colors.star,
+    fontWeight: '700',
   },
   noResultsText: {
     textAlign: 'center',
-    color: '#888',
+    color: colors.textMuted,
     marginTop: 20,
   },
   closeButton: {
     padding: 15,
-    backgroundColor: '#ddd',
-    borderRadius: 8,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
     marginTop: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   closeButtonText: {
-    color: '#12223b',
+    color: colors.textPrimary,
     textAlign: 'center',
-    fontWeight: 'bold',
+    fontWeight: '700',
     fontSize: 16,
   },
   selectionContainer: {
-    padding: 15,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    elevation: 2,
+    padding: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   selectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginBottom: 5,
-    color: '#12223b',
+    color: colors.textPrimary,
   },
   selectedMovieTitle: {
     fontSize: 16,
-    color: '#555',
+    color: colors.textSecondary,
     marginBottom: 20,
   },
   listLabel: {
@@ -447,23 +487,24 @@ const modalStyles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 10,
     marginBottom: 10,
+    color: colors.textPrimary,
   },
   watchedButton: {
-    backgroundColor: '#4CAF50', 
+    backgroundColor: colors.success,
     marginBottom: 5,
   },
   toWatchButton: {
-    backgroundColor: '#1565C0', 
+    backgroundColor: colors.info,
     marginTop: 5,
     marginBottom: 10,
   },
   ratingBox: {
     padding: 10,
     borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 5,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
     marginBottom: 15,
-    backgroundColor: '#fafafa',
+    backgroundColor: colors.surfaceAlt,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -471,16 +512,17 @@ const modalStyles = StyleSheet.create({
   ratingLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: colors.textPrimary,
   },
   ratingInput: {
     height: 40,
-    borderColor: '#ddd',
+    borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 5,
+    borderRadius: radius.sm,
     paddingHorizontal: 10,
-    backgroundColor: '#fff',
-    width: 80,
+    backgroundColor: colors.surface,
+    color: colors.textPrimary,
+    width: 90,
     textAlign: 'center',
     fontSize: 16,
   },
@@ -489,7 +531,7 @@ const modalStyles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   changeSelectionText: {
-    color: '#888',
+    color: colors.textMuted,
     fontSize: 14,
   }
 });
@@ -499,102 +541,111 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 20,
-    alignItems: "center"
+    alignItems: "center",
+    backgroundColor: colors.background,
   },
   logo: {
-    width: 300,
-    height: 90,
+    width: 220,
+    height: 70,
     resizeMode: "contain"
   },
   headerRow: {
     width: "90%",
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: 16,
+    marginBottom: 16,
   },
   tabContainer: {
     flexDirection: "row",
-    gap: 5,
-    marginRight: 10,
+    gap: 8,
   },
   tabButton: {
-    backgroundColor: "#12223b",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingVertical: 10,
-    paddingHorizontal: 15, 
-    borderRadius: 8
+    paddingHorizontal: 14,
+    borderRadius: radius.sm,
   },
   tabText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 14 
+    color: colors.textPrimary,
+    fontWeight: "600",
+    fontSize: 13
   },
   addButton: {
-    backgroundColor: "#FF5722",
+    backgroundColor: colors.primary,
     paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    flex: 1,
-    alignItems: 'flex-end',
+    paddingHorizontal: 14,
+    borderRadius: radius.sm,
   },
   addButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 14,
-    textAlign: 'right',
+    color: colors.textOnPrimary,
+    fontWeight: "700",
+    fontSize: 13,
   },
   movieCard: {
     width: SCREEN_WIDTH * 0.9,
     alignSelf: "center",
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     marginBottom: 20,
-    borderRadius: 12,
-    overflow: "hidden"
+    borderRadius: radius.lg,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   movieImage: {
     width: "100%",
     height: 420
   },
   infoBox: {
-    padding: 15
+    padding: spacing.md,
   },
   movieTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
+    fontSize: 20,
+    fontWeight: "700",
     marginBottom: 5,
-    color: "#12223b"
+    color: colors.textPrimary,
   },
   rating: {
-    fontSize: 18,
-    color: "#555",
-    marginBottom: 10
+    fontSize: 16,
+    color: colors.star,
+    marginBottom: 12,
+    fontWeight: "600",
   },
   buttonDetails: {
-    backgroundColor: "#12223b",
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.primary,
     padding: 10,
-    borderRadius: 8,
-    marginBottom: 10
+    borderRadius: radius.sm,
+    marginBottom: 10,
   },
   buttonDetailsText: {
-    color: "#fff",
+    color: colors.primary,
     textAlign: "center",
-    fontWeight: "bold"
+    fontWeight: "700"
   },
   actionButton: {
     padding: 10,
-    borderRadius: 8,
-    marginBottom: 10
+    borderRadius: radius.sm,
+    marginBottom: 10,
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   actionText: {
-    color: "white",
+    color: colors.textPrimary,
     textAlign: "center",
-    fontWeight: "bold"
+    fontWeight: "700"
   },
   actionActive: {
-    backgroundColor: "#2E7D32"
+    backgroundColor: colors.successDark,
+    borderColor: colors.success,
   },
   actionActiveBlue: {
-    backgroundColor: "#1565C0"
+    backgroundColor: colors.infoDark,
+    borderColor: colors.info,
   }
 });

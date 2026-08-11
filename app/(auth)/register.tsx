@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Image } from "react-native";
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useAuth } from "../../src/contexts/AuthContext";
 import { router } from "expo-router";
+import { colors, radius, spacing } from "../../src/theme/colors";
 
 export default function RegisterScreen() {
   const { register } = useAuth();
@@ -14,179 +15,193 @@ export default function RegisterScreen() {
 
   async function handleRegister() {
     if (!isEmailValid(email)) {
-      Alert.alert(
-        "Erro",
-        "Digite um email válido."
-      );
+      Alert.alert("Erro", "Digite um email válido.");
       return;
     }
-  
+
     if (senha.length < 3) {
-      Alert.alert(
-        "Erro",
-        "A senha deve ter ao menos 3 caracteres."
-      );
+      Alert.alert("Erro", "A senha deve ter ao menos 3 caracteres.");
       return;
     }
-  
-    await register(email, senha);
-    Alert.alert(
-      "Sucesso",
-      "Registro realizado com sucesso!",
-      [
-        {
-          text: "OK",
-          onPress: () => router.replace("(drawer)/home"),
-        }
-      ]
-    );
+
+    const result = await register(email, senha);
+
+    if (!result.success) {
+      Alert.alert("Erro", result.error ?? "Não foi possível criar a conta.");
+      return;
+    }
+
+    Alert.alert("Sucesso", "Registro realizado com sucesso!", [
+      {
+        text: "OK",
+        onPress: () => router.replace("(drawer)/home"),
+      },
+    ]);
   }
-  
+
   return (
-    <View style={styles.background}>
-      <View style={styles.views}>
-        <Image source={require("../../assets/cinevault.png")} style={styles.image} />
-        <Text style={styles.title}>Criar conta</Text>
+    <KeyboardAvoidingView
+      style={styles.background}
+      behavior="padding"
+      keyboardVerticalOffset={0}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.card}>
+          <Image source={require("../../assets/cinevault.png")} style={styles.image} />
+          <Text style={styles.title}>Criar conta</Text>
+          <Text style={styles.subtitle}>Comece a montar seu acervo de filmes</Text>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.titles3}>Nome</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Seu nome Completo"
-            placeholderTextColor="#aaa"
-          />
-        </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Nome</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Seu nome completo"
+              placeholderTextColor={colors.textMuted}
+            />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.titles3}>E-mail</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="seu@gmail.com"
-            value={email}
-            onChangeText={setEmail}
-            placeholderTextColor="#aaa"
-          />
-        </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>E-mail</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="seu@email.com"
+              value={email}
+              onChangeText={setEmail}
+              placeholderTextColor={colors.textMuted}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.titles3}>Senha</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="•••••"
-            secureTextEntry
-            value={senha}
-            onChangeText={setSenha}
-            placeholderTextColor="#aaa"
-          />
-        </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Senha</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="••••••"
+              secureTextEntry
+              value={senha}
+              onChangeText={setSenha}
+              placeholderTextColor={colors.textMuted}
+            />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.titles3}>Confirmar senha</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="•••••"
-            secureTextEntry
-            placeholderTextColor="#aaa"
-          />
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Confirmar senha</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="••••••"
+              secureTextEntry
+              placeholderTextColor={colors.textMuted}
+            />
+          </View>
+
+          <TouchableOpacity style={styles.button} onPress={handleRegister} activeOpacity={0.85}>
+            <Text style={styles.buttonText}>Cadastrar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() => router.push("(auth)/login")}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.secondaryButtonText}>Voltar ao login</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Cadastrar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.secondaryButton]} onPress={() => router.push("(auth)/login")}> 
-          <Text style={[styles.buttonText, styles.secondaryButtonText]}>Voltar ao login</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: "#f6f7fb",
-    justifyContent: "center",
+    backgroundColor: colors.background,
   },
-  views: {
-    backgroundColor: "#fff",
-    height:780,
-    borderRadius: 18,
-    padding: 28,
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.md,
+  },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    width: "100%",
+    maxWidth: 420,
     alignSelf: "center",
-    width: 400,
+    borderWidth: 1,
+    borderColor: colors.border,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2},
-    shadowOpacity: 0.10,
-    shadowRadius: 7,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 8,
   },
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 20,
+  image: {
+    width: 160,
+    height: 90,
+    resizeMode: "contain",
+    marginBottom: spacing.md,
+    alignSelf: "center",
   },
   title: {
-    fontSize: 32,
+    fontSize: 26,
     textAlign: "center",
-    fontWeight: "bold",
-    marginBottom: 36,
-    color: "#12223b"
-  },titles2: {
-    fontSize: 22,
+    fontWeight: "700",
+    marginBottom: spacing.xs,
+    color: colors.textPrimary,
+  },
+  subtitle: {
+    fontSize: 14,
     textAlign: "center",
-    marginBottom: 16,
-    fontWeight: "normal",
-    color: "#12223b"},
-      titles3: {
-      fontSize:15,
-      marginBottom: 10,
-      fontWeight: "normal",
-      color: "#12223b",
-      alignSelf: "flex-start",
-      width: "100%"},
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 18,
-    gap: 16,
+    marginBottom: spacing.lg,
+    color: colors.textSecondary,
   },
   inputContainer: {
     width: "100%",
-    marginBottom: 18,
+    marginBottom: spacing.md,
+  },
+  label: {
+    fontSize: 14,
+    marginBottom: 6,
+    fontWeight: "500",
+    color: colors.textSecondary,
   },
   input: {
-    borderWidth: 1.2,
-    borderColor: "#d1d1d7",
-    backgroundColor: "#fafbfc",
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceAlt,
+    color: colors.textPrimary,
     padding: 14,
-    borderRadius: 14,
+    borderRadius: radius.md,
     fontSize: 16,
     width: "100%",
   },
   button: {
-    backgroundColor: "#D8AE82",
-    paddingVertical: 12,
-    borderRadius: 16,
-    marginTop: 12,
+    backgroundColor: colors.primary,
+    paddingVertical: 14,
+    borderRadius: radius.md,
+    marginTop: spacing.sm,
     width: "100%",
-    alignItems: "center"
+    alignItems: "center",
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold"
+    color: colors.textOnPrimary,
+    fontSize: 17,
+    fontWeight: "700",
   },
   secondaryButton: {
-    backgroundColor: "#f2f4fc",
-    marginTop: 10,
+    marginTop: spacing.md,
+    paddingVertical: 8,
+    width: "100%",
+    alignItems: "center",
   },
   secondaryButtonText: {
-    color: "#143a77",
-    fontWeight: "600"
-  },
-  image: {
-    width: 250,
-    height: 130,
-    marginBottom: 20,
-    alignSelf:"center",
+    color: colors.primary,
+    fontWeight: "600",
+    fontSize: 15,
   },
 });

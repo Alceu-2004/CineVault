@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { View, Text, FlatList, Image, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Movie } from "../../src/types/movie";
 import imdbApi from "../../src/api/imdbApi";
 import { router } from "expo-router";
+import { colors, radius, spacing } from "../../src/theme/colors";
 
 export default function HomeScreen() {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -25,19 +26,20 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <View style={{ padding: 16 }}>
+    <View style={styles.container}>
       <FlatList
         data={movies}
         keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => router.push(`/movie/${item.id}`)}>
-            <View style={{ marginBottom: 16 }}>
+          <TouchableOpacity onPress={() => router.push(`/movie/${item.id}`)} activeOpacity={0.85}>
+            <View style={styles.card}>
               <Image
                 source={{ uri: item.image }}
-                style={{ width: "100%", height: 200, borderRadius: 8 }}
+                style={styles.image}
               />
-              <Text style={{ fontSize: 18, fontWeight: "bold" }}>{item.title}</Text>
-              <Text>⭐ {item.rating}</Text>
+              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.rating}>⭐ {item.rating}</Text>
             </View>
           </TouchableOpacity>
         )}
@@ -45,3 +47,29 @@ export default function HomeScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: spacing.md,
+    backgroundColor: colors.background,
+  },
+  card: {
+    marginBottom: spacing.md,
+  },
+  image: {
+    width: "100%",
+    height: 200,
+    borderRadius: radius.md,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.textPrimary,
+    marginTop: 6,
+  },
+  rating: {
+    color: colors.star,
+    fontWeight: "600",
+  },
+});

@@ -1,17 +1,18 @@
 import { View, Text, Image, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
-import { Movie } from "../types/movie"; 
+import { Movie } from "../types/movie";
+import { colors, radius, spacing } from "../theme/colors";
 
 interface WatchedMovie {
   id: string;
   title: string;
   image: string;
-  year: string; 
-  rating: string; 
-  userRating: number; 
+  year: string;
+  rating: string;
+  userRating: number;
 }
 
-export default function MovieCard({ movie }: { movie: WatchedMovie | any }) { 
+export default function MovieCard({ movie }: { movie: WatchedMovie | any }) {
   const openDetails = () => {
     router.push({
       pathname: "/movie/[id]",
@@ -24,7 +25,7 @@ export default function MovieCard({ movie }: { movie: WatchedMovie | any }) {
   return (
     <Pressable
       onPress={openDetails}
-      style={styles.card}
+      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
     >
       <Image
         source={{ uri: movie.image }}
@@ -33,9 +34,9 @@ export default function MovieCard({ movie }: { movie: WatchedMovie | any }) {
 
       <View style={styles.infoContainer}>
         <Text style={styles.title} numberOfLines={2}>{movie.title}</Text>
-        
+
         {movie.year && <Text style={styles.yearText}>Ano: {movie.year}</Text>}
-        
+
         {movie.rating && <Text style={styles.ratingText}>⭐ Nota Geral: {movie.rating}</Text>}
 
         {hasUserRating && (
@@ -48,49 +49,48 @@ export default function MovieCard({ movie }: { movie: WatchedMovie | any }) {
   );
 }
 
-
 const styles = StyleSheet.create({
-    card: {
-        flexDirection: "row", 
-        padding: 10,
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        marginVertical: 5,
-        elevation: 1, 
-        shadowColor: '#000', 
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 1,
-    },
-    image: {
-        width: 70, 
-        height: 100, 
-        marginRight: 15,
-        borderRadius: 4,
-        resizeMode: 'cover',
-    },
-    infoContainer: {
-        flex: 1,
-        justifyContent: "space-around",
-    },
-    title: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color: "#12223b",
-    },
-    yearText: {
-        fontSize: 14,
-        color: "#666",
-    },
-    ratingText: {
-        fontSize: 14,
-        color: "#555",
-        fontWeight: '500',
-    },
-    userRatingText: {
-        fontSize: 15,
-        fontWeight: 'bold',
-        color: '#4CAF50',
-        marginTop: 4,
-    }
+  card: {
+    flexDirection: "row",
+    padding: spacing.sm + 2,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    marginVertical: 5,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  cardPressed: {
+    backgroundColor: colors.surfaceAlt,
+  },
+  image: {
+    width: 72,
+    height: 104,
+    marginRight: spacing.md,
+    borderRadius: radius.sm,
+    resizeMode: "cover",
+  },
+  infoContainer: {
+    flex: 1,
+    justifyContent: "space-around",
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.textPrimary,
+  },
+  yearText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  ratingText: {
+    fontSize: 14,
+    color: colors.star,
+    fontWeight: "500",
+  },
+  userRatingText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.success,
+    marginTop: 4,
+  },
 });

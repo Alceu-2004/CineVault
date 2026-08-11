@@ -1,7 +1,15 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const TMDB_API_KEY = "7e562039e6fb76eab5c0f5b39ff91460"; 
+// A chave é lida de uma variável de ambiente (nunca fica fixa no código).
+// Configure em um arquivo .env na raiz do projeto: EXPO_PUBLIC_TMDB_API_KEY=sua_chave_aqui
+const TMDB_API_KEY = process.env.EXPO_PUBLIC_TMDB_API_KEY ?? "";
+
+if (!TMDB_API_KEY) {
+  console.warn(
+    "⚠️ EXPO_PUBLIC_TMDB_API_KEY não está configurada. Crie um arquivo .env na raiz do projeto (veja .env.example)."
+  );
+}
 
 const api = axios.create({
   baseURL: "https://api.themoviedb.org/3",
