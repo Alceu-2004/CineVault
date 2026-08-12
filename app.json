@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Desafio-Final",
-    "slug": "Desafio-Final",
+    "name": "CineVault",
+    "slug": "cinevault",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,7 +22,7 @@
       },
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "resize",
-      "package": "com.dudu167.DesafioFinal"
+      "package": "com.cinevault.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,9 +33,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "8007cc9a-ec0d-4d2c-849c-7a666e99b2ac"
+        "projectId": "99f67a2a-3b5c-4223-a729-9d08aded97b6"
       }
     },
-    "owner": "dudu167"
+    "owner": "alceu_botelho"
   }
 }
