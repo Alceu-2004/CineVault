@@ -9,12 +9,12 @@ Desenvolvido com **React Native + Expo Router + TypeScript**, integrado à API p
 ## 📱 Teste o aplicativo
 
 <p align="center">
-  <a href="https://expo.dev/artifacts/eas/WVRbAiq1mUMyYCMufO5RLSJEa9dKCIDgzzxy1SEb5FQ.apk">
+  <a href="https://github.com/Alceu-2004/CineVault/releases/latest/download/CineVault-v1.0.0.apk">
     <img src="https://img.shields.io/badge/📱%20Baixar%20APK-CineVault-8B5CF6?style=for-the-badge" alt="Baixar CineVault APK"/>
   </a>
 </p>
 
-O APK pode ser instalado diretamente em dispositivos Android.
+O APK pode ser instalado diretamente em dispositivos Android. Ao instalar, o Android pode pedir permissão para instalar apps de fontes desconhecidas, o que é normal para APKs fora da Play Store.
 
 > **Recomendação:** o aplicativo utiliza a API do TMDB para carregar filmes. Para testar a versão disponibilizada, o APK já possui a configuração necessária para acesso à API.
 
@@ -96,7 +96,7 @@ src/
 ### 1. Clone o repositório
 
 ```bash
-git clone <url-deste-repositorio>
+git clone https://github.com/Alceu-2004/CineVault.git
 cd CineVault
 ```
 
@@ -179,7 +179,7 @@ Isso permite ajustar a identidade visual do aplicativo de forma centralizada.
 
 A versão Android do CineVault está disponível para download através das **GitHub Releases**.
 
-**[⬇️ Baixar a versão mais recente do CineVault](https://expo.dev/artifacts/eas/WVRbAiq1mUMyYCMufO5RLSJEa9dKCIDgzzxy1SEb5FQ.apk)**
+**[⬇️ Baixar a versão mais recente do CineVault](https://github.com/Alceu-2004/CineVault/releases/latest)**
 
 Para desenvolvedores interessados no código-fonte:
 
