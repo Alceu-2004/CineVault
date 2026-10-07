@@ -9,7 +9,7 @@ Desenvolvido com **React Native + Expo Router + TypeScript**, integrado à API p
 ## 📱 Teste o aplicativo
 
 <p align="center">
-  <a href="https://github.com/Alceu-2004/CineVault/releases/latest/download/CineVault.apk">
+  <a href="https://github.com/Alceu-2004/CineVault/releases/latest/download/CineVault-v1.0.0.apk">
     <img src="https://img.shields.io/badge/📱%20Baixar%20APK-CineVault-8B5CF6?style=for-the-badge" alt="Baixar CineVault APK"/>
   </a>
 </p>
@@ -203,7 +203,7 @@ Isso permite ajustar a identidade visual do aplicativo de forma centralizada.
 
 A versão Android do CineVault está disponível para download através das **GitHub Releases**.
 
-**[⬇️ Baixar a versão mais recente do CineVault](https://github.com/Alceu-2004/CineVault/releases/latest)**
+**[⬇️ Baixar a versão mais recente do CineVault](https://github.com/Alceu-2004/CineVault/releases/latest/download/CineVault-v1.0.0.apk)**
 
 Para desenvolvedores interessados no código-fonte:
 
