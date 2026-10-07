@@ -9,7 +9,7 @@ Desenvolvido com **React Native + Expo Router + TypeScript**, integrado à API p
 ## 📱 Teste o aplicativo
 
 <p align="center">
-  <a href="https://github.com/Alceu-2004/CineVault/releases/latest/download/CineVault-v1.0.0.apk">
+  <a href="https://github.com/Alceu-2004/CineVault/releases/latest/download/CineVault.apk">
     <img src="https://img.shields.io/badge/📱%20Baixar%20APK-CineVault-8B5CF6?style=for-the-badge" alt="Baixar CineVault APK"/>
   </a>
 </p>
@@ -17,6 +17,30 @@ Desenvolvido com **React Native + Expo Router + TypeScript**, integrado à API p
 O APK pode ser instalado diretamente em dispositivos Android. Ao instalar, o Android pode pedir permissão para instalar apps de fontes desconhecidas, o que é normal para APKs fora da Play Store.
 
 > **Recomendação:** o aplicativo utiliza a API do TMDB para carregar filmes. Para testar a versão disponibilizada, o APK já possui a configuração necessária para acesso à API.
+
+---
+
+## 🖼️ Telas
+
+<table>
+  <tr>
+    <td width="33%" align="center">
+      <img src="docs/screenshots/cinevault-home.jpg" alt="Tela inicial com filmes populares"/>
+      <br/>
+      <sub><b>Início</b><br/>Filmes populares, busca e atalhos para as listas.</sub>
+    </td>
+    <td width="33%" align="center">
+      <img src="docs/screenshots/cinevault-assistidos.jpg" alt="Lista de filmes assistidos com notas"/>
+      <br/>
+      <sub><b>Assistidos</b><br/>Sua nota ao lado da nota geral do TMDB.</sub>
+    </td>
+    <td width="33%" align="center">
+      <img src="docs/screenshots/cinevault-quero-assistir.jpg" alt="Lista de filmes que o usuário quer assistir"/>
+      <br/>
+      <sub><b>Quero Assistir</b><br/>Marque como assistido ou remova da lista.</sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
